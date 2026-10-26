@@ -17,15 +17,53 @@ const inputClass =
   "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20";
 
 export default function Booking() {
-  const [submitted, setSubmitted] = useState(false);
+ 
+type SubmissionStatus = "idle" | "submitting" | "success" | "error";
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+const [submissionStatus, setSubmissionStatus] =
+  useState<SubmissionStatus>("idle");
 
-    // Front-end demo only.
-    // Connect a form service or backend to receive real inquiries.
-    setSubmitted(true);
+const [errorMessage, setErrorMessage] = useState("");
+
+async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
+  setSubmissionStatus("submitting");
+  setErrorMessage("");
+
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+
+  formData.append("access_key", "a9a89ef3-0993-4606-8520-70107177a4fe");
+  formData.append("subject", "New DJ WATCHYATONE Booking Inquiry");
+  formData.append("from_name", "DJ WATCHYATONE Website");
+
+  try {
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.message || "Your inquiry could not be submitted."
+      );
+    }
+
+    setSubmissionStatus("success");
+    form.reset();
+  } catch (error) {
+    setSubmissionStatus("error");
+    setErrorMessage(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong. Please try again."
+    );
   }
+}
+
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#080611] text-white">
@@ -143,7 +181,7 @@ export default function Booking() {
             id="booking-form"
             className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-9 lg:p-10"
           >
-            {submitted ? (
+            {submissionStatus === "success" ? (
               <div
                 role="status"
                 className="flex min-h-[420px] flex-col items-start justify-center"
@@ -151,20 +189,21 @@ export default function Booking() {
                 <span className="flex h-14 w-14 items-center justify-center rounded-full bg-fuchsia-500/15 text-2xl text-fuchsia-300">
                   ✓
                 </span>
-                <p className="mt-6 text-xs font-bold uppercase tracking-[0.3em] text-fuchsia-400">
-                  Inquiry Form Demo
+               <p className="mt-6 text-xs font-bold uppercase tracking-[0.3em] text-fuchsia-400">
+                  Inquiry Submitted
                 </p>
+
                 <h2 className="mt-3 text-3xl font-black uppercase sm:text-4xl">
-                  Looking Good.
+                  You're on the List.
                 </h2>
+
                 <p className="mt-4 max-w-lg leading-7 text-white/60">
-                  The form passed its front-end submission step. This demo
-                  has not sent or saved your inquiry. Connect a form service
-                  or backend before publishing so booking requests reach you.
+                  Thanks for reaching out to DJ WATCHYATONE! Your booking inquiry
+                  has been submitted. I'll be in touch to discuss your event.
                 </p>
                 <button
                   type="button"
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => setSubmissionStatus("idle")}
                   className="mt-8 rounded-full border border-white/15 px-6 py-3 text-sm font-bold transition hover:border-fuchsia-400"
                 >
                   Back to Form
@@ -384,23 +423,31 @@ export default function Booking() {
                     </div>
                   </fieldset>
 
-                  <button
-                    type="submit"
-                    className="group flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 px-7 py-4 text-sm font-black uppercase tracking-wider transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-fuchsia-500/20"
-                  >
-                    Submit Booking Inquiry
-                    <span
-                      aria-hidden="true"
-                      className="transition-transform group-hover:translate-x-1"
-                    >
-                      ↗
-                    </span>
-                  </button>
+                  
+<button
+  type="submit"
+  disabled={submissionStatus === "submitting"}
+  className="group flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 px-7 py-4 text-sm font-black uppercase tracking-wider transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-fuchsia-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {submissionStatus === "submitting"
+    ? "Sending Inquiry..."
+    : "Submit Booking Inquiry"}
 
-                  <p className="text-center text-xs leading-5 text-white/35">
-                    Submitting this demo form does not send your information.
-                    Booking requests will need a connected form handler.
-                  </p>
+  {submissionStatus !== "submitting" && (
+    <span aria-hidden="true">↗</span>
+  )}
+</button>
+
+{submissionStatus === "error" && (
+  <p role="alert" className="mt-4 text-center text-sm text-red-400">
+    {errorMessage} Please try again or contact us directly.
+  </p>
+)}
+
+<p className="text-center text-xs leading-5 text-white/35">
+  Your details will be used to respond to your booking inquiry.
+</p>
+
                 </form>
               </>
             )}
