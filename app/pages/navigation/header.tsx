@@ -1,101 +1,143 @@
 
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 
 const navLinks = [
   { label: "Home", to: "/" },
+  { label: "About Tone", to: "/about" },
   { label: "Services", to: "/services" },
-  { label: "About", to: "/about" },
+  // { label: "The Experience", to: "/experience" },
 ];
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="relative z-50 border-b border-white/10 bg-[#080611]/95 text-white backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[82px] max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
-
+    <header className="sticky top-0 z-50 border-b border-fuchsia-500/20 bg-black/95 text-white shadow-[0_4px_30px_rgba(217,70,239,0.08)] backdrop-blur-xl">
+      <nav
+        className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-8 lg:px-10"
+        aria-label="Main navigation"
+      >
         {/* Logo */}
         <Link
           to="/"
-          aria-label="DJ WATCHYATONE home"
-          className="group flex shrink-0 flex-col leading-none"
           onClick={() => setMenuOpen(false)}
+          className="group flex shrink-0 items-center gap-3"
+          aria-label="WatchYaTone Experience home"
         >
-          <span className="mb-1 text-[9px] font-bold uppercase tracking-[0.45em] text-fuchsia-400">
-            DJ
-          </span>
-          <span className="text-xl font-black tracking-tight sm:text-2xl">
-            WATCHYA
-            <span className="bg-gradient-to-r from-fuchsia-500 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-              TONE
+          <img
+            src="/logo.png"
+            alt="WatchYaTone Experience logo"
+            className="h-12 w-auto max-w-[180px] object-contain transition duration-300 group-hover:scale-105 sm:h-14"
+          />
+
+          <span className="hidden flex-col leading-none sm:flex">
+            <span className="text-sm font-black uppercase tracking-[0.16em]">
+              WATCHYATONE
+            </span>
+            <span className="mt-1 text-[10px] font-bold uppercase tracking-[0.3em] text-fuchsia-400">
+              Experience
             </span>
           </span>
         </Link>
 
         {/* Desktop navigation */}
-        <nav
-          aria-label="Main navigation"
-          className="hidden items-center gap-8 md:flex"
-        >
+        <div className="hidden items-center gap-7 lg:flex">
           {navLinks.map((link) => (
-            <Link
+            <NavLink
               key={link.to}
               to={link.to}
-              className="text-sm font-medium text-white/70 transition-colors hover:text-fuchsia-400"
+              end={link.to === "/"}
+              className={({ isActive }) =>
+                `relative py-2 text-xs font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
+                  isActive
+                    ? "text-fuchsia-400"
+                    : "text-white/70 hover:text-cyan-300"
+                }`
+              }
             >
               {link.label}
-            </Link>
+            </NavLink>
           ))}
-        </nav>
+        </div>
 
-        {/* Desktop booking button */}
+        {/* Desktop booking CTA */}
         <Link
           to="/booking"
-          className="hidden rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-fuchsia-900/30 transition-all hover:-translate-y-0.5 hover:shadow-fuchsia-500/30 md:inline-flex"
+          className="hidden rounded-full border border-fuchsia-400 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 px-6 py-3 text-xs font-black uppercase tracking-[0.12em] shadow-[0_0_20px_rgba(217,70,239,0.2)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(217,70,239,0.5)] lg:inline-flex"
         >
-          Book Your Event <span className="ml-2">↗</span>
+          Book Tone <span className="ml-2" aria-hidden="true">↗</span>
         </Link>
 
-        {/* Mobile menu toggle */}
+        {/* Mobile menu button */}
         <button
           type="button"
+          onClick={() => setMenuOpen((open) => !open)}
           aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((open) => !open)}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-2xl transition-colors hover:border-fuchsia-500/60 hover:text-fuchsia-400 md:hidden"
+          aria-controls="mobile-navigation"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-fuchsia-500/40 text-fuchsia-300 transition hover:border-cyan-400 hover:text-cyan-300 lg:hidden"
         >
-          {menuOpen ? "×" : "☰"}
+          {menuOpen ? (
+            <svg
+              viewBox="0 0 24 24"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          ) : (
+            <svg
+              viewBox="0 0 24 24"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          )}
         </button>
-      </div>
+      </nav>
 
       {/* Mobile navigation */}
       {menuOpen && (
-        <nav
-          aria-label="Mobile navigation"
-          className="border-t border-white/10 bg-[#080611] px-5 pb-6 pt-3 md:hidden"
+        <div
+          id="mobile-navigation"
+          className="border-t border-fuchsia-500/20 bg-black px-5 pb-6 pt-3 lg:hidden"
         >
           <div className="mx-auto flex max-w-7xl flex-col">
             {navLinks.map((link) => (
-              <Link
+              <NavLink
                 key={link.to}
                 to={link.to}
+                end={link.to === "/"}
                 onClick={() => setMenuOpen(false)}
-                className="border-b border-white/5 py-4 text-sm font-medium text-white/80 transition-colors hover:text-fuchsia-400"
+                className={({ isActive }) =>
+                  `border-b border-white/10 py-4 text-sm font-bold uppercase tracking-[0.15em] transition-colors ${
+                    isActive
+                      ? "text-fuchsia-400"
+                      : "text-white/75 hover:text-cyan-300"
+                  }`
+                }
               >
                 {link.label}
-              </Link>
+              </NavLink>
             ))}
 
             <Link
               to="/booking"
               onClick={() => setMenuOpen(false)}
-              className="mt-5 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 px-6 py-3.5 text-center text-sm font-bold text-white"
+              className="mt-5 flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-500 px-6 py-4 text-sm font-black uppercase tracking-[0.15em] shadow-[0_0_20px_rgba(217,70,239,0.2)] transition hover:shadow-[0_0_28px_rgba(217,70,239,0.4)]"
             >
-              Book Your Event ↗
+              Book Tone <span aria-hidden="true">↗</span>
             </Link>
           </div>
-        </nav>
+        </div>
       )}
     </header>
   );
